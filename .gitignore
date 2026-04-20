@@ -1,0 +1,5 @@
+/target
+/langchainrust
+/.sisyphus
+/.idea
+*.log

@@ -1,0 +1,72 @@
+[package]
+name = "mcorcode"
+version = "0.1.0"
+edition = "2021"
+authors = ["mcorcode"]
+description = "A Claude Code-like CLI tool written in Rust"
+license = "MIT"
+
+[dependencies]
+# CLI
+clap = { version = "4", features = ["derive"] }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client for LLM API
+reqwest = { version = "0.12", features = ["json", "stream"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Async trait support
+async-trait = "0.1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Terminal
+crossterm = "0.27"
+
+# Markdown rendering (compatible with crossterm 0.27)
+termimad = "0.26"
+
+# Progress indicators
+indicatif = "0.17"
+
+# Configuration
+config = "0.14"
+directories = "5"
+toml = "0.8"
+
+# Async stream support
+futures = "0.3"
+
+# File globbing
+glob = "0.3"
+
+# Regex for search
+regex = "1"
+
+# Git operations (optional, for git-aware features)
+git2 = { version = "0.18", optional = true }
+
+[features]
+default = []
+git-support = ["git2"]
+
+[profile.release]
+lto = true
+strip = true
