@@ -48,6 +48,10 @@ impl BaseMemory for ConversationSummaryMemory {
         self.add_message(Message::ai(content));
     }
 
+    fn add_tool_result(&mut self, tool_call_id: &str, result: &str) {
+        self.add_message(Message::tool(tool_call_id, result));
+    }
+
     fn get_messages(&self) -> &[Message] {
         &self.messages
     }
@@ -55,5 +59,17 @@ impl BaseMemory for ConversationSummaryMemory {
     fn clear(&mut self) {
         self.messages.clear();
         self.current_summary.clear();
+    }
+
+    fn trim_to_token_limit(&mut self, max_tokens: usize) {
+        // Summary memory 使用摘要机制而非简单裁剪
+        while self.token_count() > max_tokens && self.messages.len() > 1 {
+            let idx = self.messages.iter().position(|m| !m.is_system());
+            if let Some(i) = idx {
+                self.messages.remove(i);
+            } else {
+                break;
+            }
+        }
     }
 }

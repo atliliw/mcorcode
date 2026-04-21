@@ -1,3 +1,4 @@
+pub mod common;
 pub mod cli;
 pub mod agent;
 pub mod llm;
@@ -14,7 +15,7 @@ pub mod prompts;
 pub mod permission;
 pub mod hooks;
 
-pub use schema::{Message, MessageType, Document, ToolCall};
+pub use schema::{Message, MessageType, Document, ToolCall, LlmOutput, FinishReason, TokenUsage};
 pub use memory::{BaseMemory, ConversationBufferMemory, ConversationBufferWindowMemory};
 pub use callbacks::{CallbackHandler, CallbackManager};
 pub use session::{SessionManager, SessionState};

@@ -15,6 +15,13 @@ impl ConversationBufferMemory {
             messages: Vec::new(),
         }
     }
+
+    /// 从 JSON 反序列化
+    pub fn from_json(json: &str) -> Result<Self, MemoryError> {
+        let messages: Vec<Message> = serde_json::from_str(json)
+            .map_err(|e| MemoryError::DeserializationError(e.to_string()))?;
+        Ok(Self { messages })
+    }
 }
 
 impl Default for ConversationBufferMemory {
@@ -36,11 +43,33 @@ impl BaseMemory for ConversationBufferMemory {
         self.add_message(Message::ai(content));
     }
 
+    fn add_tool_result(&mut self, tool_call_id: &str, result: &str) {
+        self.add_message(Message::tool(tool_call_id, result));
+    }
+
     fn get_messages(&self) -> &[Message] {
         &self.messages
     }
 
     fn clear(&mut self) {
         self.messages.clear();
+    }
+
+    fn trim_to_token_limit(&mut self, max_tokens: usize) {
+        // Buffer memory 默认不裁剪，保留所有消息
+        // 但如果超过限制，移除最旧的非系统消息
+        while self.token_count() > max_tokens && self.messages.len() > 1 {
+            // 找到第一个非系统消息并移除
+            let idx = self.messages.iter().position(|m| !m.is_system());
+            if let Some(i) = idx {
+                self.messages.remove(i);
+            } else {
+                break;
+            }
+        }
+    }
+
+    fn from_json(json: &str) -> Result<Self, MemoryError> {
+        ConversationBufferMemory::from_json(json)
     }
 }

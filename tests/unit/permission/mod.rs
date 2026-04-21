@@ -1,3 +1,5 @@
-//! Unit tests for permission module
+//! Permission 模块单元测试
 
+mod checker;
 mod mode;
+mod policy;

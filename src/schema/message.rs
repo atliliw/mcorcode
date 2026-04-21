@@ -2,7 +2,9 @@
 //!
 //! Reference: langchainrust/langchainrust/src/schema/message.rs
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Message type enumeration
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -50,6 +52,14 @@ pub struct Message {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+
+    /// 消息元数据，存储额外信息
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+
+    /// 消息时间戳
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub timestamp: Option<DateTime<Utc>>,
 }
 
 impl Message {
@@ -60,6 +70,8 @@ impl Message {
             tool_calls: None,
             tool_call_id: None,
             name: None,
+            metadata: None,
+            timestamp: Some(Utc::now()),
         }
     }
 
@@ -70,6 +82,8 @@ impl Message {
             tool_calls: None,
             tool_call_id: None,
             name: None,
+            metadata: None,
+            timestamp: Some(Utc::now()),
         }
     }
 
@@ -80,6 +94,8 @@ impl Message {
             tool_calls: None,
             tool_call_id: None,
             name: None,
+            metadata: None,
+            timestamp: Some(Utc::now()),
         }
     }
 
@@ -90,6 +106,8 @@ impl Message {
             tool_calls: Some(tool_calls),
             tool_call_id: None,
             name: None,
+            metadata: None,
+            timestamp: Some(Utc::now()),
         }
     }
 
@@ -100,6 +118,8 @@ impl Message {
             tool_calls: None,
             tool_call_id: Some(tool_call_id.into()),
             name: None,
+            metadata: None,
+            timestamp: Some(Utc::now()),
         }
     }
 
@@ -109,6 +129,34 @@ impl Message {
 
     pub fn role(&self) -> &'static str {
         self.r#type.as_str()
+    }
+
+    /// 添加元数据字段
+    pub fn with_metadata(mut self, key: impl Into<String>, value: serde_json::Value) -> Self {
+        self.metadata
+            .get_or_insert_with(HashMap::new)
+            .insert(key.into(), value);
+        self
+    }
+
+    /// 获取元数据字段
+    pub fn get_metadata(&self, key: &str) -> Option<&serde_json::Value> {
+        self.metadata.as_ref().and_then(|m| m.get(key))
+    }
+
+    /// 判断是否为系统消息
+    pub fn is_system(&self) -> bool {
+        self.r#type == MessageType::System
+    }
+
+    /// 判断是否为工具结果消息
+    pub fn is_tool_result(&self) -> bool {
+        self.r#type == MessageType::Tool
+    }
+
+    /// 简单 token 估算（约 4 字符 = 1 token）
+    pub fn token_estimate(&self) -> usize {
+        self.content.len() / 4 + 1
     }
 
     /// Convert to langchainrust Message type
