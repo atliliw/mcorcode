@@ -1,6 +1,7 @@
 //! ToolRegistry 和工具实现单元测试
 
 use mcorcode::tools::{EditTool, ReadTool, Tool, ToolRegistry, WriteTool};
+use std::sync::Arc;
 
 /// 测试 ToolRegistry 的创建
 /// 新建的注册器应为空，无已注册工具
@@ -23,7 +24,7 @@ fn test_tool_registry_default() {
 #[test]
 fn test_tool_registry_register_single() {
     let mut registry = ToolRegistry::new();
-    registry.register(Box::new(ReadTool::new(".")));
+    registry.register(Arc::new(ReadTool::new(".")));
     assert_eq!(registry.list().len(), 1);
     assert!(registry.get("read_file").is_some());
 }
@@ -33,9 +34,9 @@ fn test_tool_registry_register_single() {
 #[test]
 fn test_tool_registry_register_multiple() {
     let mut registry = ToolRegistry::new();
-    registry.register(Box::new(ReadTool::new(".")));
-    registry.register(Box::new(WriteTool::new(".")));
-    registry.register(Box::new(EditTool::new(".")));
+    registry.register(Arc::new(ReadTool::new(".")));
+    registry.register(Arc::new(WriteTool::new(".")));
+    registry.register(Arc::new(EditTool::new(".")));
     assert_eq!(registry.list().len(), 3);
 }
 
@@ -44,7 +45,7 @@ fn test_tool_registry_register_multiple() {
 #[test]
 fn test_tool_registry_get_existing() {
     let mut registry = ToolRegistry::new();
-    registry.register(Box::new(ReadTool::new(".")));
+    registry.register(Arc::new(ReadTool::new(".")));
     let tool = registry.get("read_file");
     assert!(tool.is_some());
     assert_eq!(tool.unwrap().name(), "read_file");

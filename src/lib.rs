@@ -23,4 +23,4 @@ pub use config::{Settings, ConfigLoader};
 pub use permission::{PermissionMode, PermissionChecker, PermissionAction, PermissionResult};
 pub use hooks::{HookSystem, HookTrigger, HookAction, HookResult};
 pub use llm::{ModelManager, ProviderType, ProviderConfig, ModelConfig};
-pub use agent::{McorcodeState, AgentGraphBuilder, StateMessage, StateStep, MessageRole};
+pub use agent::{McorcodeState, AgentGraphBuilder, StateMessage, StateStep, MessageRole, BaseAgent, AgentExecutor, FunctionCallingAgent, AgentError};

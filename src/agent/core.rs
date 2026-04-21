@@ -1,6 +1,7 @@
 use crate::llm::{LlmClient, Message};
 use crate::tools::{Tool, ToolRegistry};
 use crate::context::ContextManager;
+use std::sync::Arc;
 use anyhow::Result;
 
 pub struct Agent {
@@ -54,7 +55,7 @@ impl Agent {
         }
     }
 
-    pub fn register_tool(&mut self, tool: Box<dyn Tool>) {
+    pub fn register_tool(&mut self, tool: Arc<dyn Tool>) {
         self.tool_registry.register(tool);
     }
 }

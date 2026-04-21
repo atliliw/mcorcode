@@ -4,6 +4,7 @@ use mcorcode::cli::{args::Commands, parse_args};
 use mcorcode::llm::LlmClient;
 use mcorcode::tools::{BashTool, EditTool, GlobTool, GrepTool, ReadTool, ToolRegistry, WriteTool};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 fn main() -> Result<()> {
     let args = parse_args();
@@ -40,12 +41,12 @@ fn main() -> Result<()> {
     let mut tool_registry = ToolRegistry::new();
     let workdir_str = workdir.to_string_lossy().to_string();
 
-    tool_registry.register(Box::new(ReadTool::new(&workdir_str)));
-    tool_registry.register(Box::new(WriteTool::new(&workdir_str)));
-    tool_registry.register(Box::new(EditTool::new(&workdir_str)));
-    tool_registry.register(Box::new(BashTool::new(&workdir_str)));
-    tool_registry.register(Box::new(GrepTool::new(&workdir_str)));
-    tool_registry.register(Box::new(GlobTool::new(&workdir_str)));
+    tool_registry.register(Arc::new(ReadTool::new(&workdir_str)));
+    tool_registry.register(Arc::new(WriteTool::new(&workdir_str)));
+    tool_registry.register(Arc::new(EditTool::new(&workdir_str)));
+    tool_registry.register(Arc::new(BashTool::new(&workdir_str)));
+    tool_registry.register(Arc::new(GrepTool::new(&workdir_str)));
+    tool_registry.register(Arc::new(GlobTool::new(&workdir_str)));
 
     let rt = tokio::runtime::Runtime::new()?;
 

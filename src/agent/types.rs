@@ -1,5 +1,4 @@
-use crate::schema::{Message, ToolCall};
-use serde::{Deserialize, Serialize};
+use crate::schema::Message;
 
 #[derive(Debug)]
 pub enum AgentError {

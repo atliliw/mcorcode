@@ -1,5 +1,7 @@
+use crate::agent::types::AgentAction;
 use crate::callbacks::{CallbackHandler, RunTree};
 use async_trait::async_trait;
+use serde_json::Value;
 
 pub struct StdOutHandler {
     verbose: bool,
@@ -29,6 +31,12 @@ impl CallbackHandler for StdOutHandler {
         }
     }
 
+    fn on_llm_new_token(&self, run: &RunTree, token: &str) {
+        if self.verbose {
+            print!("{}", token);
+        }
+    }
+
     fn on_llm_end(&self, run: &RunTree, response: &str) {
         if self.verbose {
             println!("[LLM] End: {}", run.name);
@@ -42,7 +50,7 @@ impl CallbackHandler for StdOutHandler {
         println!("[LLM] Error in {}: {}", run.name, error);
     }
 
-    fn on_tool_start(&self, run: &RunTree, tool_name: &str, input: &str) {
+    fn on_tool_start(&self, run: &RunTree, tool_name: &str, _input: &Value) {
         if self.verbose {
             println!("[Tool] {} starting", tool_name);
         }
@@ -56,6 +64,31 @@ impl CallbackHandler for StdOutHandler {
 
     fn on_tool_error(&self, run: &RunTree, error: &str) {
         println!("[Tool] Error: {}", error);
+    }
+
+    fn on_agent_start(&self, run: &RunTree, input: &str) {
+        if self.verbose {
+            println!("[Agent] Starting with: {}", input);
+        }
+    }
+
+    fn on_agent_action(&self, run: &RunTree, action: &AgentAction) {
+        if self.verbose {
+            match action {
+                AgentAction::Tool { tool, .. } => {
+                    println!("[Agent] Action: {}", tool);
+                }
+                AgentAction::Message(msg) => {
+                    println!("[Agent] Message: {}", msg.content);
+                }
+            }
+        }
+    }
+
+    fn on_agent_finish(&self, run: &RunTree, output: &str) {
+        if self.verbose {
+            println!("[Agent] Finish: {}", output);
+        }
     }
 
     fn on_chain_start(&self, run: &RunTree) {
