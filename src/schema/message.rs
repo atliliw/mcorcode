@@ -6,11 +6,14 @@ use serde::{Deserialize, Serialize};
 
 /// Message type enumeration
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
 pub enum MessageType {
+    #[serde(rename = "system")]
     System,
+    #[serde(rename = "user")]
     Human,
+    #[serde(rename = "assistant")]
     AI,
+    #[serde(rename = "tool")]
     Tool,
 }
 
@@ -106,6 +109,32 @@ impl Message {
 
     pub fn role(&self) -> &'static str {
         self.r#type.as_str()
+    }
+
+    /// Convert to langchainrust Message type
+    pub fn to_langchain(&self) -> langchainrust::schema::Message {
+        use langchainrust::core::tools::ToolCall as LcToolCall;
+        use langchainrust::schema::MessageType as LcMessageType;
+
+        match self.r#type {
+            MessageType::System => langchainrust::schema::Message::system(&self.content),
+            MessageType::Human => langchainrust::schema::Message::human(&self.content),
+            MessageType::AI => {
+                if let Some(tool_calls) = &self.tool_calls {
+                    let lc_tool_calls: Vec<LcToolCall> = tool_calls
+                        .iter()
+                        .map(|tc| LcToolCall::new(&tc.id, &tc.name, tc.arguments.to_string()))
+                        .collect();
+                    langchainrust::schema::Message::ai_with_tool_calls(&self.content, lc_tool_calls)
+                } else {
+                    langchainrust::schema::Message::ai(&self.content)
+                }
+            }
+            MessageType::Tool => langchainrust::schema::Message::tool(
+                self.tool_call_id.clone().unwrap_or_default(),
+                &self.content,
+            ),
+        }
     }
 }
 

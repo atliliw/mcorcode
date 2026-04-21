@@ -2,8 +2,8 @@
 //!
 //! Provides foundational types used across all modules.
 
-pub mod message;
 pub mod document;
+pub mod message;
 
-pub use message::{Message, MessageType};
 pub use document::Document;
+pub use message::{Message, MessageType, ToolCall};

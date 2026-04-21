@@ -1,6 +1,32 @@
-use crate::schema::Message;
-use crate::tools::ToolCall;
+use crate::schema::{Message, ToolCall};
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug)]
+pub enum AgentError {
+    LlmError(String),
+    ToolExecutionError { tool: String, error: String },
+    MaxIterationsReached,
+    TimeoutReached,
+    OutputParsingError(String),
+    InvalidToolCall(String),
+}
+
+impl std::fmt::Display for AgentError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AgentError::LlmError(msg) => write!(f, "LLM error: {}", msg),
+            AgentError::ToolExecutionError { tool, error } => {
+                write!(f, "Tool '{}' error: {}", tool, error)
+            }
+            AgentError::MaxIterationsReached => write!(f, "Max iterations reached"),
+            AgentError::TimeoutReached => write!(f, "Timeout"),
+            AgentError::OutputParsingError(msg) => write!(f, "Output parsing error: {}", msg),
+            AgentError::InvalidToolCall(msg) => write!(f, "Invalid tool call: {}", msg),
+        }
+    }
+}
+
+impl std::error::Error for AgentError {}
 
 pub enum AgentAction {
     Tool {

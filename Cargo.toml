@@ -53,9 +53,16 @@ toml = "0.8"
 
 # Async stream support
 futures = "0.3"
+async-stream = "0.3"
+
+# langchainrust framework (local)
+langchainrust = { path = "langchainrust/langchainrust" }
 
 # File globbing
 glob = "0.3"
+
+# JSON Schema generation
+schemars = "0.8"
 
 # Regex for search
 regex = "1"
