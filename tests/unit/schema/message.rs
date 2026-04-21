@@ -1,7 +1,9 @@
-//! Unit tests for Message types
+//! Message 类型单元测试
 
 use mcorcode::{Message, MessageType, ToolCall};
 
+/// 测试所有消息类型的创建和角色字符串
+/// 包括 system、human、ai、tool 四种类型
 #[test]
 fn test_message_types() {
     let system = Message::system("You are a helpful assistant.");
@@ -21,6 +23,8 @@ fn test_message_types() {
     assert_eq!(tool.role(), "tool");
 }
 
+/// 测试用户消息的 JSON 序列化
+/// 验证 role 字段序列化为 "user"，content 字段正确保留
 #[test]
 fn test_message_serialization() {
     let msg = Message::human("Test message");
@@ -29,6 +33,8 @@ fn test_message_serialization() {
     assert!(json.contains("\"content\":\"Test message\""));
 }
 
+/// 测试系统消息的 JSON 序列化
+/// 验证 role 字段序列化为 "system"
 #[test]
 fn test_message_system_serialization() {
     let msg = Message::system("You are helpful");
@@ -36,6 +42,8 @@ fn test_message_system_serialization() {
     assert!(json.contains("\"role\":\"system\""));
 }
 
+/// 测试 AI 消息的 JSON 序列化
+/// 验证 role 字段序列化为 "assistant"
 #[test]
 fn test_message_ai_serialization() {
     let msg = Message::ai("Response text");
@@ -43,6 +51,8 @@ fn test_message_ai_serialization() {
     assert!(json.contains("\"role\":\"assistant\""));
 }
 
+/// 测试 ToolCall 结构体的创建
+/// 验证 id、name、arguments 字段正确设置
 #[test]
 fn test_tool_call_creation() {
     let tc = ToolCall::new(
@@ -55,6 +65,8 @@ fn test_tool_call_creation() {
     assert!(tc.arguments.is_object());
 }
 
+/// 测试 ToolCall 的 JSON 序列化
+/// 验证 id 和 name 字段正确序列化
 #[test]
 fn test_tool_call_serialization() {
     let tc = ToolCall::new("call_abc", "bash", serde_json::json!({"command": "ls -la"}));
@@ -63,6 +75,8 @@ fn test_tool_call_serialization() {
     assert!(json.contains("\"name\":\"bash\""));
 }
 
+/// 测试 Message 的 has_tool_calls 方法
+/// 普通 AI 消息返回 false，带工具调用的 AI 消息返回 true
 #[test]
 fn test_message_has_tool_calls() {
     let msg = Message::ai("Hello");
@@ -75,6 +89,8 @@ fn test_message_has_tool_calls() {
     assert!(msg_with_tools.has_tool_calls());
 }
 
+/// 测试 MessageType 的 as_str 方法
+/// 每种消息类型返回正确的字符串表示
 #[test]
 fn test_message_type_as_str() {
     assert_eq!(MessageType::System.as_str(), "system");
@@ -83,6 +99,8 @@ fn test_message_type_as_str() {
     assert_eq!(MessageType::Tool.as_str(), "tool");
 }
 
+/// 测试 MessageType 的 Display trait 实现
+/// to_string 返回值应与 as_str 相同
 #[test]
 fn test_message_type_display() {
     assert_eq!(MessageType::System.to_string(), "system");
