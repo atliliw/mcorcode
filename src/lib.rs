@@ -14,12 +14,12 @@ pub mod prompts;
 pub mod permission;
 pub mod hooks;
 
-pub use schema::{Message, MessageType, Document};
+pub use schema::{Message, MessageType, Document, ToolCall};
 pub use memory::{BaseMemory, ConversationBufferMemory, ConversationBufferWindowMemory};
 pub use callbacks::{CallbackHandler, CallbackManager};
 pub use session::{SessionManager, SessionState};
 pub use config::{Settings, ConfigLoader};
-pub use permission::{PermissionMode, PermissionChecker, PermissionAction};
-pub use hooks::{HookSystem, HookTrigger, HookAction};
-pub use llm::ModelManager;
-pub use agent::{McorcodeState, AgentGraphBuilder};
+pub use permission::{PermissionMode, PermissionChecker, PermissionAction, PermissionResult};
+pub use hooks::{HookSystem, HookTrigger, HookAction, HookResult};
+pub use llm::{ModelManager, ProviderType, ProviderConfig, ModelConfig};
+pub use agent::{McorcodeState, AgentGraphBuilder, StateMessage, StateStep, MessageRole};

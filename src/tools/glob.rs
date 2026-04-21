@@ -100,7 +100,7 @@ impl GlobTool {
         Ok(())
     }
 
-    pub(crate) fn matches_pattern(&self, filename: &str, pattern: &str) -> bool {
+    pub fn matches_pattern(&self, filename: &str, pattern: &str) -> bool {
         let pattern = pattern.trim_start_matches("**/").trim_start_matches("*/");
 
         if pattern.starts_with('*') {

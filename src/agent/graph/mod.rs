@@ -37,5 +37,5 @@ pub mod builder;
 pub mod nodes;
 pub mod router;
 
-pub use state::{McorcodeState, StateMessage, StateStep};
+pub use state::{McorcodeState, StateMessage, StateStep, MessageRole};
 pub use builder::AgentGraphBuilder;

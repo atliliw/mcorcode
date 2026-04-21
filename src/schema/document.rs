@@ -51,21 +51,3 @@ impl From<&str> for Document {
         Document::new(content)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_document_creation() {
-        let doc = Document::new("Test content");
-        assert_eq!(doc.content, "Test content");
-    }
-
-    #[test]
-    fn test_document_with_metadata() {
-        let doc =
-            Document::with_metadata("Test content", serde_json::json!({"source": "test.txt"}));
-        assert_eq!(doc.metadata["source"], "test.txt");
-    }
-}

@@ -136,35 +136,3 @@ impl Default for ModelManager {
         Self::new()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_model_manager_new() {
-        let manager = ModelManager::new();
-        assert!(manager.list_models().is_empty());
-        assert_eq!(manager.default_model(), "gpt-4");
-    }
-
-    #[test]
-    fn test_model_manager_default() {
-        let manager = ModelManager::default();
-        assert!(manager.list_models().is_empty());
-    }
-
-    #[test]
-    fn test_model_manager_set_default_model() {
-        let mut manager = ModelManager::new();
-        manager.set_default_model("gpt-3.5-turbo");
-        assert_eq!(manager.default_model(), "gpt-3.5-turbo");
-    }
-
-    #[test]
-    fn test_model_manager_get_client_none() {
-        let manager = ModelManager::new();
-        assert!(manager.get_client(None).is_none());
-        assert!(manager.get_client(Some("gpt-4")).is_none());
-    }
-}
