@@ -1,4 +1,5 @@
 use crate::schema::Message;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 pub struct SessionHistory {
@@ -14,7 +15,7 @@ impl SessionHistory {
 
     pub fn add(&mut self, role: &str, content: &str) {
         self.entries.push(HistoryEntry {
-            timestamp: chrono::Utc::now(),
+            timestamp: Utc::now(),
             role: role.to_string(),
             content: content.to_string(),
         });
@@ -43,6 +44,38 @@ impl SessionHistory {
     pub fn count(&self) -> usize {
         self.entries.len()
     }
+
+    pub fn search(&self, query: &str) -> Vec<&HistoryEntry> {
+        self.entries
+            .iter()
+            .filter(|e| e.content.contains(query))
+            .collect()
+    }
+
+    pub fn filter_by_role(&self, role: &str) -> Vec<&HistoryEntry> {
+        self.entries.iter().filter(|e| e.role == role).collect()
+    }
+
+    pub fn filter_by_time_range(
+        &self,
+        start: DateTime<Utc>,
+        end: DateTime<Utc>,
+    ) -> Vec<&HistoryEntry> {
+        self.entries
+            .iter()
+            .filter(|e| e.timestamp >= start && e.timestamp <= end)
+            .collect()
+    }
+
+    pub fn last_n(&self, n: usize) -> Vec<&HistoryEntry> {
+        let start = self.entries.len().saturating_sub(n);
+        self.entries[start..].iter().collect()
+    }
+
+    pub fn first_n(&self, n: usize) -> Vec<&HistoryEntry> {
+        let end = self.entries.len().min(n);
+        self.entries[..end].iter().collect()
+    }
 }
 
 impl Default for SessionHistory {
@@ -51,9 +84,9 @@ impl Default for SessionHistory {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HistoryEntry {
-    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub timestamp: DateTime<Utc>,
     pub role: String,
     pub content: String,
 }

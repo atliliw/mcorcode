@@ -44,7 +44,7 @@ async fn test_function_calling_agent_plan_first_iteration() {
         ("input".to_string(), "Hello".to_string()),
     ]);
     
-    let result = agent.plan(&[], &inputs).await;
+    let result: Result<mcorcode::agent::AgentOutput, mcorcode::agent::AgentError> = agent.plan(&[], &inputs).await;
     assert!(result.is_ok());
     
     match result.unwrap() {

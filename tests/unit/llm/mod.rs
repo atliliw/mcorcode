@@ -2,3 +2,4 @@
 
 mod manager;
 mod provider;
+mod streaming;

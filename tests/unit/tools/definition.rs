@@ -93,7 +93,10 @@ fn test_multiple_definitions_to_openai() {
         ToolDefinition::new("write", "Write"),
     ];
 
-    let openai_tools: Vec<_> = defs.iter().map(|d| d.to_openai_format()).collect();
+    let openai_tools: Vec<_> = defs
+        .iter()
+        .map(|d: &ToolDefinition| d.to_openai_format())
+        .collect();
 
     assert_eq!(openai_tools.len(), 2);
     assert_eq!(openai_tools[0]["function"]["name"], "read");

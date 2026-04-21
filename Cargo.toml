@@ -70,6 +70,9 @@ regex = "1"
 # Git operations (optional, for git-aware features)
 git2 = { version = "0.18", optional = true }
 
+[dev-dependencies]
+tempfile = "3"
+
 [features]
 default = []
 git-support = ["git2"]

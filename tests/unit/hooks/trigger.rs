@@ -55,7 +55,7 @@ fn test_all_trigger_types() {
         HookTrigger::OnError,
     ];
 
-    let strings: Vec<&str> = triggers.iter().map(|t| t.as_str()).collect();
+    let strings: Vec<&str> = triggers.iter().map(|t: &HookTrigger| t.as_str()).collect();
     for i in 0..strings.len() {
         for j in (i + 1)..strings.len() {
             assert_ne!(strings[i], strings[j], "触发器字符串重复");
