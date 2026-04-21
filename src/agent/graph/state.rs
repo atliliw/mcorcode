@@ -338,3 +338,133 @@ impl StateStep {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_mcorcode_state_new() {
+        let state = McorcodeState::new("Hello".to_string());
+        assert!(!state.session_id.is_empty());
+        assert_eq!(state.messages.len(), 1);
+        assert_eq!(state.iteration, 0);
+        assert_eq!(state.max_iterations, 25);
+        assert!(state.should_continue);
+        assert!(state.tool_calls_queue.is_empty());
+    }
+
+    #[test]
+    fn test_mcorcode_state_has_tool_calls() {
+        let state = McorcodeState::new("Hello".to_string());
+        assert!(!state.has_tool_calls());
+    }
+
+    #[test]
+    fn test_mcorcode_state_reached_max_iterations() {
+        let mut state = McorcodeState::new("Hello".to_string());
+        assert!(!state.reached_max_iterations());
+        state.iteration = 25;
+        assert!(state.reached_max_iterations());
+    }
+
+    #[test]
+    fn test_mcorcode_state_has_final_output() {
+        let state = McorcodeState::new("Hello".to_string());
+        assert!(!state.has_final_output());
+    }
+
+    #[test]
+    fn test_mcorcode_state_add_system() {
+        let mut state = McorcodeState::new("Hello".to_string());
+        state.add_system("You are helpful".to_string());
+        assert_eq!(state.messages.len(), 2);
+    }
+
+    #[test]
+    fn test_mcorcode_state_add_human() {
+        let mut state = McorcodeState::new("Hello".to_string());
+        state.add_human("How are you?".to_string());
+        assert_eq!(state.messages.len(), 2);
+    }
+
+    #[test]
+    fn test_mcorcode_state_add_ai() {
+        let mut state = McorcodeState::new("Hello".to_string());
+        state.add_ai("I'm fine".to_string());
+        assert_eq!(state.messages.len(), 2);
+    }
+
+    #[test]
+    fn test_mcorcode_state_increment_iteration() {
+        let mut state = McorcodeState::new("Hello".to_string());
+        state.increment_iteration();
+        assert_eq!(state.iteration, 1);
+    }
+
+    #[test]
+    fn test_mcorcode_state_set_error() {
+        let mut state = McorcodeState::new("Hello".to_string());
+        state.set_error("Something went wrong".to_string());
+        assert!(state.error.is_some());
+        assert!(!state.should_continue);
+    }
+
+    #[test]
+    fn test_mcorcode_state_finish() {
+        let mut state = McorcodeState::new("Hello".to_string());
+        state.finish("Done".to_string());
+        assert_eq!(state.final_output, Some("Done".to_string()));
+        assert!(!state.should_continue);
+    }
+
+    #[test]
+    fn test_state_message_system() {
+        let msg = StateMessage::system("Hello".to_string());
+        assert_eq!(msg.role, MessageRole::System);
+        assert_eq!(msg.content, "Hello");
+    }
+
+    #[test]
+    fn test_state_message_human() {
+        let msg = StateMessage::human("Hello".to_string());
+        assert_eq!(msg.role, MessageRole::Human);
+    }
+
+    #[test]
+    fn test_state_message_ai() {
+        let msg = StateMessage::ai("Response".to_string());
+        assert_eq!(msg.role, MessageRole::AI);
+    }
+
+    #[test]
+    fn test_state_message_tool() {
+        let msg = StateMessage::tool("call_123".to_string(), "Result".to_string());
+        assert_eq!(msg.role, MessageRole::Tool);
+        assert_eq!(msg.tool_call_id, Some("call_123".to_string()));
+    }
+
+    #[test]
+    fn test_state_step_new() {
+        let step = StateStep::new(
+            "bash".to_string(),
+            serde_json::json!({"cmd": "ls"}),
+            "output".to_string(),
+            100,
+        );
+        assert_eq!(step.tool, "bash");
+        assert!(step.success);
+        assert_eq!(step.duration_ms, 100);
+    }
+
+    #[test]
+    fn test_state_step_failed() {
+        let step = StateStep::failed(
+            "bash".to_string(),
+            serde_json::json!({"cmd": "ls"}),
+            "error".to_string(),
+        );
+        assert!(!step.success);
+        assert_eq!(step.observation, "error");
+    }
+}

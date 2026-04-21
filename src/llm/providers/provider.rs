@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum ProviderType {
     Anthropic,
     OpenAI,
@@ -158,5 +158,95 @@ impl ModelConfig {
             cost_per_1k_input: Some(30.0),
             cost_per_1k_output: Some(60.0),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_provider_type_as_str() {
+        assert_eq!(ProviderType::Anthropic.as_str(), "anthropic");
+        assert_eq!(ProviderType::OpenAI.as_str(), "openai");
+        assert_eq!(ProviderType::GoogleGemini.as_str(), "google");
+        assert_eq!(ProviderType::Groq.as_str(), "groq");
+        assert_eq!(ProviderType::Ollama.as_str(), "ollama");
+        assert_eq!(ProviderType::OpenRouter.as_str(), "openrouter");
+    }
+
+    #[test]
+    fn test_provider_type_from_str() {
+        assert_eq!(
+            ProviderType::from_str("anthropic"),
+            Some(ProviderType::Anthropic)
+        );
+        assert_eq!(ProviderType::from_str("openai"), Some(ProviderType::OpenAI));
+        assert_eq!(
+            ProviderType::from_str("google"),
+            Some(ProviderType::GoogleGemini)
+        );
+        assert_eq!(
+            ProviderType::from_str("gemini"),
+            Some(ProviderType::GoogleGemini)
+        );
+        assert_eq!(ProviderType::from_str("groq"), Some(ProviderType::Groq));
+        assert_eq!(ProviderType::from_str("invalid"), None);
+    }
+
+    #[test]
+    fn test_provider_type_default_endpoint() {
+        assert!(ProviderType::Anthropic.default_endpoint().is_some());
+        assert!(ProviderType::OpenAI.default_endpoint().is_some());
+        assert!(ProviderType::Ollama.default_endpoint().is_some());
+    }
+
+    #[test]
+    fn test_provider_type_default_model() {
+        assert!(ProviderType::Anthropic.default_model().is_some());
+        assert!(ProviderType::OpenAI.default_model().is_some());
+    }
+
+    #[test]
+    fn test_provider_config_new() {
+        let config = ProviderConfig::new(ProviderType::OpenAI);
+        assert_eq!(config.provider, ProviderType::OpenAI);
+        assert!(config.api_key.is_none());
+    }
+
+    #[test]
+    fn test_provider_config_with_api_key() {
+        let config = ProviderConfig::new(ProviderType::OpenAI).with_api_key("test-key");
+        assert_eq!(config.api_key, Some("test-key".to_string()));
+    }
+
+    #[test]
+    fn test_provider_config_with_base_url() {
+        let config =
+            ProviderConfig::new(ProviderType::OpenAI).with_base_url("https://custom.api.com");
+        assert_eq!(config.base_url, Some("https://custom.api.com".to_string()));
+    }
+
+    #[test]
+    fn test_model_config_new() {
+        let config = ModelConfig::new("gpt-4");
+        assert_eq!(config.name, "gpt-4");
+        assert!(config.display_name.is_none());
+        assert!(config.supports_tools);
+        assert!(config.supports_streaming);
+    }
+
+    #[test]
+    fn test_model_config_anthropic_default() {
+        let config = ModelConfig::anthropic_default();
+        assert_eq!(config.name, "claude-3-5-sonnet-20241022");
+        assert!(config.supports_thinking);
+    }
+
+    #[test]
+    fn test_model_config_openai_default() {
+        let config = ModelConfig::openai_default();
+        assert_eq!(config.name, "gpt-4");
+        assert!(!config.supports_thinking);
     }
 }

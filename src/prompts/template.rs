@@ -64,3 +64,64 @@ impl Default for PromptTemplate {
         Self::from_template("")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_prompt_template_new() {
+        let template = PromptTemplate::new("Hello {name}!", vec!["name"]);
+        assert_eq!(template.input_variables(), &["name".to_string()]);
+        assert_eq!(template.template(), "Hello {name}!");
+    }
+
+    #[test]
+    fn test_prompt_template_from_template() {
+        let template = PromptTemplate::from_template("Hello {name}, you are {role}!");
+        assert_eq!(template.input_variables().len(), 2);
+        assert!(template.input_variables().contains(&"name".to_string()));
+        assert!(template.input_variables().contains(&"role".to_string()));
+    }
+
+    #[test]
+    fn test_prompt_template_format() {
+        let template = PromptTemplate::new("Hello {name}!", vec!["name"]);
+        let result = template.format(std::collections::HashMap::from([("name", "World")]));
+        assert_eq!(result, "Hello World!");
+    }
+
+    #[test]
+    fn test_prompt_template_format_multiple() {
+        let template = PromptTemplate::new("{greeting} {name}!", vec!["greeting", "name"]);
+        let result = template.format(std::collections::HashMap::from([
+            ("greeting", "Hello"),
+            ("name", "World"),
+        ]));
+        assert_eq!(result, "Hello World!");
+    }
+
+    #[test]
+    fn test_prompt_template_missing_variable() {
+        let template = PromptTemplate::new("Hello {name} {missing}!", vec!["name"]);
+        let result = template.format(std::collections::HashMap::from([("name", "World")]));
+        // Missing variable stays as placeholder
+        assert_eq!(result, "Hello World {missing}!");
+    }
+
+    #[test]
+    fn test_prompt_template_default() {
+        let template = PromptTemplate::default();
+        assert_eq!(template.template(), "");
+        assert!(template.input_variables().is_empty());
+    }
+
+    #[test]
+    fn test_extract_variables() {
+        let vars = extract_variables("{a} and {b} and {c}");
+        assert_eq!(vars.len(), 3);
+        assert!(vars.contains(&"a".to_string()));
+        assert!(vars.contains(&"b".to_string()));
+        assert!(vars.contains(&"c".to_string()));
+    }
+}
